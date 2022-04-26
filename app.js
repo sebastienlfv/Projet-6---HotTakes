@@ -24,12 +24,6 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use('/api/sauces', (req, res, next) => {
-  Sauce.find()
-    .then(things => res.status(200).json(things))
-    .catch(error => res.status(400).json({ error }));
-});
-
 app.use('/api/sauces', sauceRoutes);
 app.use('/api/auth', userRoutes);
 
