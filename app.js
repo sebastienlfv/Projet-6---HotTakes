@@ -4,7 +4,6 @@ const userRoutes = require('./routes/user');
 const sauceRoutes = require('./routes/sauce')
 
 const dotenv = require('dotenv');
-const Sauce = require('./models/Sauce');
 dotenv.config()
 
 const app = express();
