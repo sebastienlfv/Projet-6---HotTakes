@@ -50,3 +50,45 @@ exports.getSauces = (req, res, next) => {
 };
 
 
+exports.likeSauce = (req, res, next) => {
+    // let arrayLike = []
+    // let arrayDislike = []
+
+    Sauce.findOne({ _id: req.params.id }, (err, elemFromBase) => {
+
+      switch(req.body.like){
+        case 1:
+          // traitement req.body.like = 1
+          Sauce.updateOne({ _id: req.params.id }, {
+              $inc: {likes: +1},
+              $push: {usersLiked: req.body.userId},
+              _id: req.params.id 
+            })
+          .then(() => res.status(200).json({ message: 'Un like a été ajouté !'}))
+          .catch(error => res.status(400).json({ error }));
+          
+        case 0:
+          // traitement req.body.like = 0
+          // if(elemFromBase.usersLiked){
+          //   Sauce.updateOne({ _id:req.params.id }, {
+          //     $inc: {likes: -1},
+          //     $push: {usersLiked: req.body.userId},
+          //     _id: req.params.id
+          //   })
+          //   .then(() => res.status(200).json({ message: 'Un like a été enlevé !'}))
+          //   .catch(error => res.status(400).json({ error }));
+          // }
+        case -1:
+          // traitement req.body.like = -1
+          Sauce.updateOne({ _id: req.params.id }, {
+            $inc: {dislikes: -1},
+            $push: {usersDisliked: req.body.userId},
+            _id: req.params.id 
+          })
+        .then(() => res.status(200).json({ message: 'Un dislike a été ajouté !'}))
+        .catch(error => res.status(400).json({ error }));
+      }
+    })
+      
+}
+
