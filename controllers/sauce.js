@@ -55,13 +55,15 @@ exports.likeSauce = (req, res, next) => {
   let arrayDislike = []
 
   Sauce.findOne({ _id: req.params.id }, {}, (err, elemFromBase) => {
-    usersLiked = elemFromBase.usersLiked;
-    usersDisLiked = elemFromBase.usersDisLiked;
-    switch(req.body.like){
+    const like = req.body.like
+    const userId = req.body.userId
+    const sauceId = req.params.id
+  
+    switch(like){
       case 1:
-        Sauce.updateOne({ _id: req.params.id }, {
-            $inc: { likes: 1 },
-            $push: { usersLiked: req.body.userId },
+        Sauce.updateOne({ _id: sauceId }, {
+            $inc: { likes: +1 },
+            $push: { usersLiked: userId },
           })
         .then(() => res.status(201).json({ message: 'Un like a été ajouté !'}))
         .catch(error => res.status(400).json({ error }));
@@ -69,30 +71,23 @@ exports.likeSauce = (req, res, next) => {
       case 0:
         if(elemFromBase.usersLiked){
           Sauce.updateOne({ _id:req.params.id }, {
-            $inc: {likes: 0},
-            $push: {usersLiked: req.body.userId},
-            _id: req.params.id
+            $inc: {likes: -1},
+            $push: {usersLiked: userId},
           })
-          .then(() => res.status(201).json({ message: 'Un like a été enlevé !'}))
+          .then(() => res.status(200).json({ message: 'Un like a été enlevé !'}))
           .catch(error => res.status(400).json({ error }));
-        } else if(elemFromBase.usersLiked){
-          Sauce.updateOne({ _id:req.params.id }, {
-            $inc: {dislikes: 0},
-            $push: {usersDisLiked: req.body.userId},
-            _id: req.params.id
-          })
-          .then(() => res.status(201).json({ message: 'Un dislike a été enlevé !'}))
-          .catch(error => res.status(400).json({ error }));
-        }
+        } 
         break;
       case -1:
-        Sauce.updateOne({ _id: req.params.id }, {
-          $inc: { dislikes: 1 },
-          $push: { usersDisliked: req.body.userId },
+        Sauce.updateOne({ _id: sauceId }, {
+          $push: { usersDisliked: userId },
+          $inc: { dislikes: +1 }
         })
-      .then(() => res.status(201).json({ message: 'Un dislike a été ajouté !'}))
-      .catch(error => res.status(400).json({ error }));
-      break;
+        .then(() => res.status(201).json({ message: 'Un dislike a été ajouté !'}))
+        .catch(error => res.status(400).json({ error }));
+        break;
+      default:
+        console.log(error)
     }
     if (err) {
       console.log(err.message);
